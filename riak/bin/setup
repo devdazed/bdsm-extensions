@@ -1,0 +1,20 @@
+The easiest deployment strategy resembling what you suggest is:
+
+0. All nodes in your cluster are the same OS on the same architecture
+1. Build Riak via 'make rel' on one of the cluster's machines
+2. "Remote load" Riak by:
+  2a. scp -r rel/riak newhost:/install/path/
+  2b. ssh newhost
+  2c. edit /install/path/riak/etc/vm.args, to change -name
+  2d. /install/path/riak/bin/riak start
+  2e. /install/path/riak/bin/riak-admin join riak@oldhost
+
+Command 2a is all you need to install Riak on the remote machine.
+Command 2c is needed to get the host part of the node name to line up
+with the hostname of the machine you've just installed Riak on.
+Command 2d starts Riak on the new machine.  Command 2e tells that new
+Riak node to join the cluster you already have running by contacting
+the 'riak@oldhost' node, a member of that cluster.  You will only need
+command 2e the first time you start that node - the next time you
+(re)start it, it will automatically join the cluster it was part of.
+

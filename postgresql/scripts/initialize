@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+system="postgresql"
+version="${version:-"$($scripts_path/db "$extension_path/config/db" "version")"}"
+
+if [[ "root" = "$(whoami)" ]] ; then
+  prefix="${prefix:-/usr/local}"
+  data_path="${data_path:-}"
+  log_path="/var/log/postgresql"
+else
+  prefix="${prefix:-$HOME/.pkg}"
+  data_path="${data_path:-}"
+fi
+mkdir -p $log_path $data_path
+
+install_path="$prefix/postgresql-$version"
+

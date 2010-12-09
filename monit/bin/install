@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+package=monit ; version="5.0.3" ; extension="tar.gz"
+
+install_prefix="${install_prefix:-/usr/local}"
+
+if [[ ! -z "$trace_flag" ]] ; then set -x ; fi
+
+mkdir -p /usr/local/src
+
+cd /usr/local/src
+
+curl -L -O http://mmonit.com/monit/dist/${package}-${version}.${extension}
+
+tar zxf "${package}-${version}.${extension}"
+
+cd "${package}-${version}/"
+
+./configure --prefix=${install_prefix}
+
+make
+
+make install
+

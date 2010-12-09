@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+# TODO:
+#   - bdsm package installation framework
+#   -
+
+source $extension_scripts_path/initialize
+
+$scripts_path/fetch "ftp://ftp5.us.postgresql.org/pub/PostgreSQL/v$version/postgresql-$version.tar.bz2"
+
+bunzip2 | tar xf - postgresql-$version.tar.bz2
+
+cd postgresql-$version/
+
+if [ "Darwin" = "$(uname)"  ] ; then
+  configure_flags="--with-bonjour CFLAGS='-O2 -pipe'"
+fi
+
+./configure --prefix=$path/postgresql/$version --datadir=$data_path $path/data/postgresql/$version --with-openssl $configure_flags
+
+make "$make_flags"
+
+make install
+
+$extension_path/setup
+

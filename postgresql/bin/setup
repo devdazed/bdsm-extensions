@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+
+source $extension_scripts_path/initialize
+
+system_user="postgres"
+
+if [[ "Linux" = "$(uname)" ]]
+  #ln -s /usr/local/postgresql /usr/local/pgsql
+  /sbin/ldconfig /usr/local/pgsql/lib
+
+  if [[ "root" = "$(whoami)" ]] ; then
+    user="pgsql"
+    group="pgsql"
+    useradd $user
+    groupadd $group
+  fi
+
+  cp ./contrib/start-scripts/linux /etc/init.d/pgsql
+  chmod u+x /etc/init.d/pgsql
+  # TODO: sed to replace datadir in /etc/init.d/pgsql
+  # vim /etc/init.d/pgsql
+  #config --add postgresql
+  #
+  # TODO: # Set home directory for user 'pgsql' to /pgsql
+  # vim /etc/passwd
+  #
+  ## Linux
+  # sysctl -w kernel.shmmax=1610612736
+  # sysctl -w kernel.shmall=2097152
+else
+  user="$(whoami)"
+  group="$(groups | awk '{print $1}')"
+  ## MacOSX
+  # sysctl -w kernel.shmmax=134217728
+
+  # kern.sysv.shmmax=1610612736
+  # kern.sysv.shmall=2097152
+  # kern.sysv.shmmin=1
+  # kern.sysv.shmmni=32
+  # kern.sysv.shmseg=8
+  # kern.maxprocperuid=1536
+  # kern.maxproc=2048
+
+  # sysctl -w kernel.shmall=2097152
+fi
+
+mkdir -p $data_path $log_dir
+chown -R $user $data_path
+chmod -R 0700  $data_path
+chown -R $user $log_dir
+
+if [[ "root" = "$(whoami)" ]] ; then
+  su - $user -c "$install_path/bin/initdb --pgdata=$data_path --encoding=utf8 --username=postgres --pwprompt"
+  su - $user -c "$install_path/bin/pg_ctl start -D $data_path -l $log_dir/server.log"
+  su - $user -c "$install_path/bin/createdb test --username $system_user"
+  su - $user -c "$install_path/bin/psql test --username $system_user"
+else
+  $install_path/bin/initdb --pgdata=$data_path --encoding=utf8 --username=$system_user --pwprompt
+  $install_path/bin/pg_ctl start -D $data_path -l $log_dir/server.log
+  $install_path/bin/createdb test --username $system_user
+  $install_path/bin/psql test --username $system_user
+
+  mkdir $HOME/bin
+  cp ./contrib/start-scripts/linux $HOME/bin/pgsql
+  chmod u+x $HOME/bin/pgsql
+  touch $HOME/bin/pgsql
+fi
+

@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+package="otp_src" ; version="R13B03" ;
+
+if [[ "root" = "$(whoami)" ]] ; then
+  source_path="/usr/local/src"
+else
+  source_path="$HOME/.src"
+fi
+
+mkdir -p $source_path
+builtin cd $source_path
+
+curl -L http://ftp.sunet.se/pub/lang/erlang/download/${package}_$version.tar.gz -o ${package}_$version.tar.gz
+
+tar zxf ${package}_$version.tar.gz
+
+cd ${package}_$version
+
+if [[ "Darwin" = "$(uname)" ]] ; then
+  ./configure --prefix=/usr/local --enable-hipe --enable-smp-support --enable-threads --enable-kernel-poll --enable-darwin-64bit --enable-m64-build
+else
+  ./configure --prefix=/usr/local --enable-hipe --enable-smp-support --enable-threads --enable-kernel-poll
+fi
+
+make -j1 && sudo make install

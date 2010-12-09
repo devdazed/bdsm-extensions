@@ -1,0 +1,30 @@
+#!/usr/local/bin/env bash
+
+if [[ "root" = "$(whoami)" ]] ; then
+  source_path="$HOME/.src"
+else
+  source_path="/usr/local/bin"
+fi
+
+mkdir -p $source_path ; cd $source_path
+package="riak" ; version="0.8" ; archive_format="tar.gz"
+package_url="http://bitbucket.org/basho/riak/get"
+curl -L "$package_url/$package-$version.$archive_format" -o $package-$version.$archive_format
+tar zxf $package-$version.$archive_format
+mv riak $package-$version
+cd $package-$version
+make -j1 all rel
+
+echo -e "Installing riak to /usr/local/riak/"
+rsync -av rel/riak/ /usr/local/riak/
+
+echo -e "Starting Riak"
+/usr/local/riak/bin/riak start
+echo -e "Testing riak with riak-admin"
+/usr/local/riak/bin/riak-admin test
+if [[ $? -gt 0 ]] ; then
+  echo -e "Test failed, there is an error with the riak server."
+else
+  echo -e 'Test successful!'
+fi
+

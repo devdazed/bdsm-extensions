@@ -1,0 +1,17 @@
+---
+chdir: {pathname}
+environment: {environment}
+log: {log}
+pid: {pid}
+user: {user}
+group: {group}
+port: {port}
+rackup: {/path/to/config.ru}
+tag: cluster
+address: 127.0.0.1
+timeout: 30
+max_conns: 1024
+max_persistent_conns: 512
+servers: 25
+daemonize: true
+require: []
