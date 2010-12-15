@@ -8,20 +8,20 @@ description()
 actions()
 {
   printf "
-  install  - Install the unicorn gem.
-  setup    - Setup the unicorn config file with a template in $current_path/config/
-  start    - Start.
-  stop     - Stop.
-  restart  - Restart.
-  reload   - Reload unicorn configuration file.
-  logs     - Reopen log files.
-  increase - Increase the number of unicorn worker processes.
-  decrease - Decrease the number of unicorn worker processes.
-  kill     - Forcedly kill off unicorns.
-  list     - List all running unicorns for $project $environment.
-  pause    - Pause all unicorn workers.
-  unpause  - Un pause all unicorn workers.
-  help     - Display this help text.
+  install   - Install the unicorn gem.
+  setup     - Setup the unicorn config file with a template in $current_path/config/
+  start     - Start.
+  stop      - Stop.
+  restart   - Restart.
+  reload    - Reload unicorn configuration file.
+  logs      - Reopen log files.
+  increase  - Increase the number of unicorn worker processes.
+  decrease  - Decrease the number of unicorn worker processes.
+  terminate - Force kill unicorn master.
+  list      - List all running unicorns for $project $environment.
+  pause     - Pause all unicorn workers.
+  unpause   - Unpause all unicorn workers.
+  help      - Display this help text.
   "
 }
 
