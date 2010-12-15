@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+usage()
+{
+  printf "
+Usage:
+
+  $0 [--help] extension_name
+
+where extension_name is one of:
+
+$(find * -type d -maxdepth 0)"
+
+}
+
+if [[ $(id -u) -eq 0 ]] ; then
+  bdsm_path="/usr/local/bdsm"
+else
+  bdsm_path="$HOME/.bdsm"
+fi
+
+if [[ -z "$*" ]]; then
+  printf "\n\n"
+fi
+
+while [[ $# -gt 0 ]] ; do
+  token="$1" ; shift
+
+  case "$1" in
+    --trace)
+      ;;
+    --help|help)
+        usage
+      ;;
+    *)
+      if [[ -d $token ]] ; then
+        if [[ ! -d "$bdsm_path/extensions" ]]; then
+          printf "It appears that BDSM has not been installed to $bdsm_path\n"
+          if [[ $(id -u) -ne 0 && -d "/usr/local/bdsm" ]]; then
+            printf "It also appears that you installed BDSM as root, "
+            printf "please run this script as root in order to install extensions.\n"
+          fi
+          exit 1
+        fi
+        cp -Rf $token "$bdsm_path/extensions/"
+      else
+        printf "$token is an unknown command / extension.\n"
+        usage
+        exit 1
+      fi
+  esac
+done
+
+exit 0
