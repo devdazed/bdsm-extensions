@@ -86,12 +86,12 @@ fi
 if [[ -n "${project:-""}" ]] ; then
 
   running_pid=$(
-    ps auxww | grep '[u]nicorn' | grep 'master' | grep -v '(old)' | \
+    ps auxww | grep '[u]nicorn' | grep ' master ' | grep -v '(old)' | \
       awk '/'${project}'/{print $2}'
   )
 
   old_pid=$(
-    ps auxww | grep '[u]nicorn' | grep 'master' | grep '(old)' | \
+    ps auxww | grep '[u]nicorn' | grep ' master ' | grep '(old)' | \
       awk '/'${USER}'/{print $2}'
   )
 
@@ -100,11 +100,11 @@ else
   if [[ -z "$running_pid" ]] ; then
 
     running_pid=$(
-      ps auxww | grep '[u]nicorn' | grep 'master' | grep -v '(old)' | \
+      ps auxww | grep '[u]nicorn' | grep ' master ' | grep -v '(old)' | \
         awk '/'${USER}'/{print $2}'
     )
     old_pid=$(
-      ps auxww | grep '[u]nicorn' | grep 'master' | grep '(old)' | \
+      ps auxww | grep '[u]nicorn' | grep ' master ' | grep '(old)' | \
         awk '/'${USER}'/{print $2}'
     )
 
