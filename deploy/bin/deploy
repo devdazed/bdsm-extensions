@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 set -o errtrace
+
 export PS4='+[${BASH_SOURCE}] : ${LINENO} : ${FUNCNAME[0]:+${FUNCNAME[0]}() $ }'
 
 if [[ ${trace_flag:-0} -eq 1 ]] ; then
@@ -11,7 +12,7 @@ if [[ ${debug_flag:-0} -eq 1 ]] ; then
   set -o verbose
 fi
 
-# Attempt to load RVM
+# Load RVM if it is found
 files=( "$HOME/.rvm/scripts/rvm" "/usr/local/scripts/rvm" )
 
 for file in "${files[@]}" ; do
@@ -26,7 +27,8 @@ for file in "${files[@]}" ; do
 
 done
 
-files=( "$HOME/.bashrc" "/etc/.bdsmrc" "$HOME/.bdsmrc" )
+# Load environment and bdsmrc files.
+files=( "$HOME/.bashrc" "/etc/bdsmrc" "$HOME/.bdsmrc" )
 
 for file in "${files[@]}" ; do
 
@@ -48,11 +50,11 @@ done
 # This means that users may disable hooks by changing their
 # execute bit.
 #
-hook() {
-
+hook()
+{
   hook="$1"
 
-  if [[ "$hooks_flag" -ne 0 ]] ; then
+  if [[ ${hooks_flag:-0} -gt 0 ]] ; then
 
     # Server
     if [[ -s "$shared_path/deploy/$hook" ]] ; then
@@ -102,17 +104,16 @@ hook() {
   fi
 }
 
-update() {
-
-  update_repository \
-    && replace_current
+update()
+{
+  update_repository && replace_current
 
   return $?
 }
 
-update_repository() {
-  $scripts_path/log "info" \
-    "Updating local repository in $shared_path/$project.\n"
+update_repository()
+{
+  printf "Updating local repository in $shared_path/$project.\n"
 
   pushd "$shared_path/$project" > /dev/null 2>&1
 
@@ -125,11 +126,11 @@ update_repository() {
 
     #current_branch=$(git branch | awk '/\* /{print $2}')
 
-    $scripts_path/log "info" "Pulling updates from $remote"
+    printf "Pulling updates from $remote\n"
 
     git fetch $remote
 
-    $scripts_path/log "info" "Switching to branch $branch"
+    printf "Switching to branch $branch\n"
 
     if [[ -z "$(git branch | awk "/$branch$/")" ]] ; then
 
@@ -141,8 +142,7 @@ update_repository() {
 
       if [[ $? -gt 0 ]] ; then
 
-        $scripts_path/log "error" \
-          "Branch $remote/$branch not found. Skipping remainder of update."
+        printf "ERROR: Branch $remote/$branch not found. Skipping remainder of update.\n"
 
         return 1
 
@@ -150,7 +150,7 @@ update_repository() {
 
     else
 
-      $scripts_path/log "info" "Already on branch '$branch'."
+      printf "Already on branch '$branch'.\n"
 
     fi
 
@@ -164,7 +164,7 @@ update_repository() {
 
     if [[ -f .gitmodules ]] ; then
 
-      $scripts_path/log "info" "Updating submodules."
+      printf "Updating submodules.\n"
 
       git submodule init 2>/dev/null
 
@@ -176,7 +176,7 @@ update_repository() {
 
     hg pull
 
-    if [[ ! -z "$revision" ]] ; then
+    if [[ -n "$revision" ]] ; then
 
       # TODO: Find out if this is how it's done for hg ;)
       hg update $branch $revision
@@ -213,19 +213,20 @@ update_repository() {
   popd > /dev/null 2>&1
 }
 
-stage_current() {
-  "$scripts_path/log" "info" "Staging new release to $stage_path"
+stage_current()
+{
+  printf "Staging new release to $stage_path\n"
 
   rsync -ag --exclude=".${scm}/" "$shared_path/$project/" "$stage_path"
 
   mkdir -p "$stage_path/public"
 }
 
-replace_current() {
-
+replace_current()
+{
   if [[ -d "$current_path" ]] ; then
 
-    "$scripts_path/log" "info" "Moving aside previous release."
+    printf "Moving aside previous release.\n"
 
     mkdir -p "$project_path/previous"
 
@@ -233,17 +234,16 @@ replace_current() {
 
   fi
 
-  "$scripts_path/log" "info" "Moving staged release to $current_path"
+  printf "Moving staged release to $current_path\n"
 
   mv "$stage_path" "$current_path"
-
 }
 
-configure() {
-
+configure()
+{
   if [[ ! -d "$shared_path/config" ]] ; then
 
-    "$scripts_path/log" "info" "No shared config path found, skipping."
+    printf "No shared config path found, skipping.\n"
 
     return 0
 
@@ -257,13 +257,13 @@ configure() {
 
   builtin cd "$shared_path/config"
 
-  "$scripts_path/log" "info" "Setting up persistent config files:"
+  printf "Setting up persistent config files:\n"
 
-  for config_item in $shared_path/config/* ; do
+  for config_item in "$shared_path"/config/* ; do
 
-    item=$(basename $config_item)
+    item=$(basename "$config_item")
 
-    "$scripts_path/log" "info" " - $item"
+    printf " - $item\n"
 
     rm -rf "$stage_path/config/$item"
 
@@ -272,15 +272,15 @@ configure() {
   done
 }
 
-symlink() {
-
-  $scripts_path/log "info" "Setting up persistent directories"
+symlink()
+{
+  printf "Setting up persistent directories\n"
 
   for dir in tmp log pids files ; do
 
     if [[ -d "$shared_path/$dir" ]] ; then
 
-      "$scripts_path/log" "info" " - $dir"
+      printf " - $dir\n"
 
       rm -rf "$stage_path/$dir"
 
@@ -292,9 +292,9 @@ symlink() {
 
   for dir in $(ls -A "$shared_path/public/") ; do
 
-    if [[ ! -z "$dir" ]] ; then
+    if [[ -n "$dir" ]] ; then
 
-      "$scripts_path/log" "info" " - public/$dir"
+      printf " - public/$dir\n"
 
       rm -rf "$stage_path/public/$dir"
 
@@ -305,29 +305,28 @@ symlink() {
   done
 }
 
-cleanup() {
-
-  mkdir -p $project_path/previous
+cleanup()
+{
+  mkdir -p "$project_path/previous"
 
   if [[ ! -z "$old_releases" ]] ; then
 
     (
-    $scripts_path/log "info" "Removing old releases..."
+    printf "Removing old releases...\n"
 
-    builtin cd $project_path/previous
+    builtin cd "$project_path/previous"
 
     for release in $(echo $old_releases) ; do
 
       if [[ -d "$release" ]] ; then
 
-        $scripts_path/log "info" " - $release"
+        printf " - $release\n"
 
         rm -rf $release
 
       else
 
-        $scripts_path/log "info" "info" \
-          "Skipping ~/previous/$release as the directory does not exist."
+        printf "Skipping ~/previous/$release as the directory does not exist.\n"
 
       fi
 
@@ -350,8 +349,8 @@ record()
   return 0
 }
 
-detect_scm() {
-
+detect_scm()
+{
   if [[ -z "$scm" ]] ; then
 
     if [[ -d "$shared_path/$project/.git" ]] ; then
@@ -369,12 +368,11 @@ detect_scm() {
     fi
 
   fi
-
 }
 
 detect_scm
 
-$scripts_path/log "info" "info" "Deploying..."
+printf "Deploying...\n"
 (
   hook "before_update_repository"
   update_repository
@@ -410,7 +408,6 @@ $scripts_path/log "info" "info" "Deploying..."
 )
 result=$?
 
-$scripts_path/log "info" \
-  "Deploy started at $timestamp and completed at $(date +%m.%d.%Y-%H:%M:%S)\n"
+printf "Deploy started at $timestamp and completed at $(date +%m.%d.%Y-%H:%M:%S)\n"
 
 exit $result
