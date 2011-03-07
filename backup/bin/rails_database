@@ -28,8 +28,8 @@ fail("application must be specified as the first argument.")  if @application.ni
 
 fail("adapter not specified in shared/config/database.yml")  if @adapter.nil? || @adapter.empty?
 
-@username    = @config["username"] || @user
-fail("username not specified in shared/config/database.yml") if @username.nil? || @username.empty?
+@username = @config["username"] || @user
+@username = @user if @username.nil? || @username.empty?
 
 @database    = @config["database"].to_s.strip
 fail("database not specified in shared/config/database.yml") if @database.nil? || @database.empty?
