@@ -15,7 +15,7 @@ puts "Loading BDSM Database Backup Utility." if @trace
 #
 @timestamp = Time.now.strftime("%Y-%m-%dT%H:%M:%S")
 @log_path  = "#{ENV["HOME"]}/shared/backups/log"
-FileUtils.mkdir_p(@target_path) unless File.exist?(@target_path)
+FileUtils.mkdir_p(@target_path) unless File.exist?(@log_path)
 
 @user = (ENV["USER"]|| %x{whoami}).strip
 @application = ARGV.shift || ENV["project"]
