@@ -67,7 +67,7 @@ elsif @adapter == "postgresql"
   end
   pgpass.close
 
-  @command = "#{@dump} #{@flags} -U#{@username} -h #{@hostname} #{@database} | bzip2 -c - > #{@target_path}/#{@filename}.bz2"
+  @command = "#{@dump} #{@flags} -U#{@username} -h #{@hostname} #{@password.empty? ? '--no-password' : ''} #{@database} | bzip2 -c - > #{@target_path}/#{@filename}.bz2"
 
 else
 
