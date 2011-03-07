@@ -15,7 +15,7 @@ puts "Loading BDSM Database Backup Utility." if @trace
 #
 @timestamp = Time.now.strftime("%Y-%m-%dT%H:%M:%S")
 @log_path  = "#{ENV["HOME"]}/shared/backups/log"
-FileUtils.mkdir_p(@target_path) unless File.exist?(@log_path)
+FileUtils.mkdir_p(@log_path) unless File.exist?(@log_path)
 
 @user = (ENV["USER"]|| %x{whoami}).strip
 @application = ARGV.shift || ENV["project"]
@@ -28,7 +28,7 @@ fail("application must be specified as the first argument.")  if @application.ni
 
 fail("adapter not specified in shared/config/database.yml")  if @adapter.nil? || @adapter.empty?
 
-@username    = @config["username"].to_s.strip
+@username    = @config["username"] || @user
 fail("username not specified in shared/config/database.yml") if @username.nil? || @username.empty?
 
 @database    = @config["database"].to_s.strip
