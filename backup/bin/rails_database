@@ -58,8 +58,12 @@ elsif @adapter == "postgresql"
   @flags = "-b -c -E UTF8 -O -x"
   @filename = "#{@database}%#{@timestamp}.psql"
 
-  File.open("/home/#{@user}/.pgpass", 'w') { |file| file.write "#{@hostname}:#{@port}:#{@database}:#{@username}:#{@password}" }
-  %x{chmod 0600 /home/#{@user}/.pgpass}
+  pgpass_file = "#{ENV["HOME"]}/.pgpass"
+  File.open(pgpass_file, 'w+') do |file|
+    file.write "#{@hostname}:#{@port}:#{@database}:#{@username}:#{@password}"
+  done
+  %x{chmod 0600 #{pgpass_file}}
+
   @command = "#{@dump} #{@flags} -U#{@username} -h #{@hostname} #{@database} | bzip2 -c - > #{@target_path}/#{@filename}.bz2"
 
 else
