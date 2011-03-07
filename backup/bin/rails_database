@@ -55,7 +55,7 @@ elsif @adapter == "postgresql"
 
   @dump = %x{which pg_dump}.strip
   fail("pg_dump command not found") if @dump.empty?
-  @flags = "-b -c -E UTF8 -O -x"
+  @flags = "-b -c -E UTF8 -O -x --no-password"
   @filename = "#{@database}%#{@timestamp}.psql"
   credentials = "#{@hostname}:#{@port}:#{@database}:#{@username}:#{@password}"
 
@@ -67,7 +67,7 @@ elsif @adapter == "postgresql"
   end
   pgpass.close
 
-  @command = "#{@dump} #{@flags} -U#{@username} -h #{@hostname} #{@password.empty? ? '--no-password' : ''} #{@database} | bzip2 -c - > #{@target_path}/#{@filename}.bz2"
+  @command = "#{@dump} #{@flags} -U#{@username} -h #{@hostname} #{@database} | bzip2 -c - > #{@target_path}/#{@filename}.bz2"
 
 else
 
