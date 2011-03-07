@@ -3,23 +3,27 @@
 require "yaml"
 require "fileutils"
 
-def log(message, file) ; %x{echo "#{@timestamp}:#{@application}:#{@environment}:#{message}" >> #{@target_path}/backup.#{file}.log} ; end
+def log(message, file) ; %x{echo "#{@timestamp}:#{@application}:#{@environment}:#{message}" >> #{@log_path}/backup.#{file}.log} ; end
 def fail(message)      ; log(message, :error) ; exit 1 ; end
 def succeed(message)   ; log(message, :backup) ; exit 0 ; end
 
-@trace=1 if ENV["trace_flag"]
+@trace = 1 if ENV["trace_flag"]
 
 puts "Loading BDSM Database Backup Utility." if @trace
 #
 # Setup & Extract variables
 #
-@user = %x{whoami}.strip
-@application = ARGV.shift
+@timestamp = Time.now.strftime("%Y-%m-%dT%H:%M:%S")
+@log_path  = "#{ENV["HOME"]}/shared/backups/log"
+FileUtils.mkdir_p(@target_path) unless File.exist?(@target_path)
+
+@user = (ENV["USER"]|| %x{whoami}).strip
+@application = ARGV.shift || ENV["project"]
+@environment = ARGV.shift || ENV["environment"] || ENV["RAILS_ENV"] || ENV["MERB_ENV"] || ENV["RACK_ENV"] || "production"
 fail("application must be specified as the first argument.")  if @application.nil? || @application.empty?
-@environment = ARGV.shift
-@environment ||= ENV["environment"] || ENV["RAILS_ENV"] || ENV["MERB_ENV"] || ENV["RACK_ENV"] || "production"
+
+@target_path = "#{ENV["HOME"]}/shared/backups/#{@application}/#{@environment}"
 @config      = YAML.load_file("#{ENV["HOME"]}/shared/config/database.yml")[@environment]
-@timestamp   = Time.now.strftime("%Y-%m-%dT%H:%M:%S")
 @adapter     = @config["adapter"].to_s.strip
 
 fail("adapter not specified in shared/config/database.yml")  if @adapter.nil? || @adapter.empty?
@@ -33,9 +37,8 @@ fail("database not specified in shared/config/database.yml") if @database.nil? |
 @password    = @config["password"].to_s.strip
 @hostname    = @config["host"] || "localhost"
 @port        = @config["port"] || "5432"
-@target_path = "#{ENV["HOME"]}/shared/backups/#{@application}/#{@environment}"
 
-FileUtils.mkdir_p(@target_path)
+FileUtils.mkdir_p(@target_path) unless File.exist?(@target_path)
 
 #
 # Perform the backup

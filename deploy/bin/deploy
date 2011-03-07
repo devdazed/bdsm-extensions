@@ -338,6 +338,8 @@ cleanup()
 
 record()
 {
+  # TODO: What else could we record that would be useful?
+
   cd "$shared_path/$project"
 
   echo $(git log --no-color -1 | head -n 1 | cut -c 7-47) \
