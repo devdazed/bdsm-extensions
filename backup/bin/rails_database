@@ -63,7 +63,7 @@ elsif @adapter == "postgresql"
   pgpass = File.open("#{ENV["HOME"]}/.pgpass", "w+")
   unless pgpass.read.match(credentials)
     pgpass.write credentials
-    pgpass.chmod "0600"
+    pgpass.chmod 0600
   end
   pgpass.close
 
