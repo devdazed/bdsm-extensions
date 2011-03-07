@@ -35,6 +35,7 @@ fail("adapter not specified in shared/config/database.yml")  if @adapter.nil? ||
 fail("database not specified in shared/config/database.yml") if @database.nil? || @database.empty?
 
 @password    = @config["password"].to_s.strip
+fail("password: not specified in shared/config/database.yml") if @password.nil? || @password.empty?
 @hostname    = @config["host"] || "localhost"
 @port        = @config["port"] || "5432"
 
