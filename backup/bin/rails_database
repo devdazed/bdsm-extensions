@@ -61,7 +61,7 @@ elsif @adapter == "postgresql"
 
   # Only write credentials if they are not already in the file.
   pgpass = File.open("#{ENV["HOME"]}/.pgpass", "w+")
-  unless pgpass.read =~ credentials
+  unless pgpass.read.match(credentials)
     pgpass.write credentials
     pgpass.chmod "0600"
   end
