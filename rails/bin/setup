@@ -7,11 +7,11 @@
 while [ $# -gt 0 ] ; do
   token="$1" ; shift
   case "$token" in
-    --repo)        repo="$1"        ; shift ;;
-    --environment) environment="$1" ; shift ;;
-    --project)     project="$1"     ; shift ;;
-    --database)    database="$1"    ; shift ;;
-    --server)      server="$1"      ; shift ;;
+    --repo|--repository) repository="$1"  ; shift ;;
+    --environment)       environment="$1" ; shift ;;
+    --project)           project="$1"     ; shift ;;
+    --database)          database="$1"    ; shift ;;
+    --server)            server="$1"      ; shift ;;
     *) echo "rails setup: unrecognized argument(s) $*"
   esac
 done
@@ -51,27 +51,27 @@ else
   fi
 fi
 
-if [[ ! -z "$repo" ]] ; then
-  if ! awk "/^repo=/" "$HOME/.bash_profile" ; then
-    printf "\nexport repo=\"$repo\"\n" >> $HOME/.bdsmrc
+if [[ -n "$repository" ]] ; then
+  if ! awk "/^repository=/" "$HOME/.bash_profile" ; then
+    printf "\nexport repository=\"$repository\"\n" >> $HOME/.bdsmrc
   fi
 
   mkdir -p "$shared_path" && cd "$shared_path"
 
-  if [[ "$scm" = "git" ]] || (echo $repo | awk "/git/") ; then
+  if [[ "$scm" = "git" ]] || (echo $repository | awk "/git/") ; then
     if [[ ! -d "$shared_path/$project/.git" ]] ; then
-      git clone $repo $project
+      git clone $repository $project
     fi
-  elif [[ "$scm" = "svn" ]] || (echo $repo | awk "/svn/") ; then
+  elif [[ "$scm" = "svn" ]] || (echo $repository | awk "/svn/") ; then
     if [[ ! -d "$shared_path/$project/.svn" ]] ; then
-      svn checkout $repo $project
+      svn checkout $repository $project
     fi
-  elif [[ "$scm" = "hg" ]] || (echo $repo | awk "/hg/") ; then
+  elif [[ "$scm" = "hg" ]] || (echo $repository | awk "/hg/") ; then
     if [[ ! -d "$shared_path/$project/.hg" ]] ; then
-      hg clone $repo $project
+      hg clone $repository $project
     fi
   else
-    echo -e "ERROR: repo type not known, expecting {git,svn,hg} in the repo url."
+    echo -e "ERROR: repository type not known, expecting {git,svn,hg} in the repository url."
   fi
 fi
 
@@ -84,7 +84,7 @@ done
 #
 touch "$shared_path/config/database.yml"
 
-if [[ ! -z "$database" ]] ; then
+if [[ -n "$database" ]] ; then
   if ! awk "/^database/" "$HOME/.bash_profile" ; then
     echo "export database=\"production\"" >> $HOME/.bdsmrc
   fi
@@ -147,7 +147,8 @@ if [[ ! -z "$database" ]] && command -v gem > /dev/null; then
   fi
 fi
 
-if [[ ! -z "$server" ]] ; then
+if [[ -n "$server" ]] ; then
+
   if [[ "unicorn" = "$server" ]] ; then
     # TODO: Extension check
     "$bin_path/bdsm unicorn setup"
@@ -158,6 +159,7 @@ if [[ ! -z "$server" ]] ; then
   elif [[ "thin" = "$server" ]] ; then
     "$bin_path/bdsm thin setup"
   fi
+
 fi
 
 exit $?
