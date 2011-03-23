@@ -8,6 +8,6 @@ if [[ ${master_pid:-0} -gt 0 ]] ; then
 
 else
 
-  nginx -t -c "$config_file" && nginx -c "$config_file"
+  nginx -t -c "$nginx_config_file" && nginx -c "$nginx_config_file"
 
 fi
