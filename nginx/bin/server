@@ -16,7 +16,7 @@ if [[ -s "$extension_templates_path/server.conf.template" ]] ; then
     mkdir -p "$nginx_config_path/servers/"
   fi
 
-  sed -e "s#{{project_name}}#$project_name#g" \
+  sed -e "s#{{project}}#$project_name#g" \
     "$extension_templates_path/server.conf.template" \
     > "$nginx_path/servers/$project_name.conf"
 
