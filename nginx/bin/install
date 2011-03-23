@@ -2,7 +2,8 @@
 
 source "$extension_scripts_path/initialize"
 
-printf "\nNote: This will do a standard install. Use the 'passenger' BDSM extension for installing passenger Nginx.\n"
+printf "\nNote: This will do a standard install.\n"
+printf "Use the 'passenger' BDSM extension for installing passenger Nginx.\n"
 
 configure_flags=(--prefix="$nginx_install_path"
   --conf-path="$nginx_config_file"
@@ -79,10 +80,11 @@ chmod +x "$init_scripts_path/nginx"
 cp "$extension_templates_path/nginx.conf.template" \
    "$nginx_config_path/nginx.conf"
 
-cp "$extension_templates_path/proxy.conf.template"\
+cp "$extension_templates_path/proxy.conf.template" \
    "$nginx_config_path/conf/proxy.conf"
 
-adduser nginx
+useradd -G nginx -d /etc/nginx -m nginx
+
 # TODO: add group nginx, handle in a system agnostic method
 
 for directory in "${config_directories[@]}" ; do
