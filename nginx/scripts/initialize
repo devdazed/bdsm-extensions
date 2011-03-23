@@ -22,9 +22,23 @@ export PATH="/sbin:/usr/sbin:/usr/local/sbin:/opt/sbin:/opt/local:sbin:$PATH"
 
 master_pid="$(ps auxww |  awk '/[n]ginx: master/{print $2}' | head -n 1)"
 
-config_file="${config_file:-"/etc/nginx/nginx.conf"}"
+if [[ -d /etc/init.d ]] ; then
+  init_scripts_path=/etc/init.d
+elif [[ -d /etc/rc.d ]] ; then
+  init_scripts_path=/etc/rc.d
+else
+  printf "ERROR: Unknown init scripts directory (/etc/init.d or /etc/rc.d not found).\n"
+  exit 1
+fi
 
+nginx_install_path="/usr/local/nginx"
+nginx_config_file="${nginx_config_file:-"/etc/nginx/nginx.conf"}"
 nginx_path="/etc/nginx"
 nginx_config_path="$nginx_path/conf"
 nginx_servers_path="$nginx_path/servers"
+nginx_binary="/usr/sbin/nginx"
+nginx_pid_file="/var/run/nginx.pid"
+nginx_lock_file="/var/lock/nginx.lock"
+nginx_spool_path="/var/spool/nginx"
+nginx_log_path="/var/log/nginx"
 

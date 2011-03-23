@@ -2,18 +2,18 @@
 
 source "$extension_scripts_path/initialize"
 
-echo -e "\nNote: This will do a standard install. Use the 'passenger' extension for installing passenger Nginx.\n"
+printf "\nNote: This will do a standard install. Use the 'passenger' BDSM extension for installing passenger Nginx.\n"
 
-configure_flags=( --prefix=/usr/local/nginx
-  --conf-path=/etc/nginx/nginx.conf
-  --sbin-path=/usr/sbin/nginx
-  --pid-path=/var/run/nginx.pid
-  --lock-path=/var/lock/nginx.lock
-  --http-client-body-temp-path=/var/spool/nginx/client_body_temp
-  --http-proxy-temp-path=/var/spool/nginx/proxy_temp
-  --http-fastcgi-temp-path=/var/spool/nginx/fastcgi_temp
-  --http-log-path=/var/log/nginx/access.log
-  --error-log-path=/var/log/nginx/error.log
+configure_flags=(--prefix="$nginx_install_path"
+  --conf-path="$nginx_config_file"
+  --sbin-path="$nginx_binary"
+  --pid-path="$nginx_pid_file"
+  --lock-path="$nginx_lock_file"
+  --http-client-body-temp-path="$nginx_spool_path/client_body_temp"
+  --http-proxy-temp-path="$nginx_spool_path/var/spool/nginx/proxy_temp"
+  --http-fastcgi-temp-path="$nginx_spool_path/var/spool/nginx/fastcgi_temp"
+  --http-log-path="$nginx_log_path/access.log"
+  --error-log-path="$nginx_log_path/error.log"
   --with-imap
   --with-imap_ssl_module
   --with-http_ssl_module
@@ -21,26 +21,22 @@ configure_flags=( --prefix=/usr/local/nginx
   --with-pcre
 )
 
-source_path="${source_path:-/usr/local/src}"
+true "${source_path:=/usr/local/src}" \
+     "${nginx_version:=0.8.54}" \
+     "${archive_format:=tar.gz}"
 
 mkdir -p "$source_path"
 
 cd "$source_path"
 
 package="nginx"
-
-# TODO: allow version specification from command line args.
-version="0.8.53"
-
-archive_format="tar.gz"
-
-packge_url="http://nginx.org/download/$package-$version.$archive_format"
+packge_url="http://nginx.org/download/${package}-${nginx_version}.${archive_format}"
 
 curl -O -L "$packge_url"
 
-tar zxf "$package-$version.tar.gz"
+tar zxf "${package}-${nginx_version}.tar.gz"
 
-cd "$package-$version"
+cd "${package}-${nginx_version}"
 
 ./configure ${configure_flags[@]}
 
@@ -48,9 +44,12 @@ make
 
 make install
 
-config_directories=(/var/spool/nginx/client_body_temp /var/log/nginx
-  /etc/nginx/conf /etc/nginx/servers
+config_directories=(/var/spool/nginx/client_body_temp
+/var/log/nginx
+"$nginx_config_path/conf"
+"$nginx_config_path/servers"
 )
+
 for directory in "${config_directories[@]}" ; do
   mkdir -p "$directory"
 done
@@ -63,25 +62,28 @@ files=( fastcgi.conf fastcgi.conf.default fastcgi_params
 
 for file in "${files[@]}" ; do
 
-  if [[ -f "/etc/nginx/$file" ]] ; then
-
-    mv "/etc/nginx/$file" "/etc/nginx/conf/$file"
-
+  if [[ -f "$nginx_path/$file" ]] ; then
+    mv "$nginx_path/$file" \
+       "$nginx_config_path/$file"
   fi
 
 done
 
-touch /etc/nginx/conf/passenger
+touch "$nginx_config_path/passenger" # empty file as a placeholder.
 
-cp "$extension_templates_path/nginx_ctl.template" /etc/init.d/nginx
+cp "$extension_templates_path/nginx_ctl.template" \
+   "$init_scripts_path/nginx"
 
-chmod +x /etc/init.d/nginx
+chmod +x "$init_scripts_path/nginx"
 
-cp "$extension_templates_path/nginx.conf.template" /etc/nginx/nginx.conf
+cp "$extension_templates_path/nginx.conf.template" \
+   "$nginx_config_path/nginx.conf"
 
-cp "$extension_templates_path/proxy.conf.template" /etc/nginx/conf/proxy.conf
+cp "$extension_templates_path/proxy.conf.template"\
+   "$nginx_config_path/conf/proxy.conf"
 
 adduser nginx
+# TODO: add group nginx, handle in a system agnostic method
 
 for directory in "${config_directories[@]}" ; do
   chown -R nginx:nginx "$directory"

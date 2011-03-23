@@ -2,7 +2,9 @@
 
 nginx_path="${nginx_path:-/etc/nginx}"
 
+# Put nginx.conf in place from template file
 cp "$extension_templates_path/nginx.conf.template" "$nginx_path/"
 
+# Put proxy.conf in place from template file
 cp "$extension_templates_path/proxy.conf.template" "$nginx_path/conf/proxy.conf"
 

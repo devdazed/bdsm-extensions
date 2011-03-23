@@ -4,11 +4,10 @@ source "$extension_scripts_path/initialize"
 
 if [[ ${master_pid:-0} -gt 0 ]] ; then
 
-  printf "Nginx is already running ($master_pid)"
+  printf "Nginx is already running ($master_pid)\n"
 
 else
 
-  nginx -t -c "$config_file" &&
-    nginx -c "$config_file"
+  nginx -t -c "$config_file" && nginx -c "$config_file"
 
 fi

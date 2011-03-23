@@ -1,6 +1,26 @@
 #!/usr/bin/env bash
 
 
-# Enable a 'server'
-# This renames /etc/nginx/servers/X.conf.disabled to X.conf
+# Enable a project_name (project)
+# This renames /etc/nginx/project_names/X.conf.disabled to X.conf
 
+source "$extension_scripts_path/initialize"
+
+project_name="${1:-}"
+if [[ -z "$project_name" ]] ; then
+  printf "project_name must be specified for 'nginx project_name'\n"
+fi
+
+if [[ -f "$nginx_project_names_path/$project_name.conf.disbled" ]] ; then
+  mv "$nginx_project_names_path/$project_name.conf.disbled" \
+    "$nginx_project_names_path/$project_name.conf"
+  exit $?
+else
+  if [[ -f "$nginx_project_names_path/$project_name.conf" ]] ; then
+    printf "INFO: $project_name.conf is already enabled.\n"
+    exit 0
+  else
+    printf "INFO: Cannot disable, $project_name.conf, $project_name.conf.disabled does not exist.\n"
+    exit 1
+  fi
+fi

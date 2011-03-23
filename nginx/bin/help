@@ -1,25 +1,28 @@
 #!/usr/bin/env bash
 
-description() {
+description()
+{
   printf "Extension for managing Nginx (http://wiki.nginx.org/Main)."
 }
 
-actions() {
+actions()
+{
   printf "
   install  - Install nginx on the system.
   setup    - Setup Nginx configuration.
   start    - Startup nginx.
   stop     - Stop nginx.
   restart  - Restart nginx.
-  enable   - Enable servers.
-  disable  - Disable servers.
-  server   - Add new server(s) --enable.
+  server  <project_name>  - Add and enable a new server(s)
+  enable  <project_name>  - Enable project server config.
+  disable <project_name>  - Disable project server config.
   help     - Display this help text.
   "
 }
 
-usage() {
-printf "
+usage()
+{
+  printf "
 Description
 
   BDSM $(description)
