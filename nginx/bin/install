@@ -83,9 +83,9 @@ cp "$extension_templates_path/nginx.conf.template" \
 cp "$extension_templates_path/proxy.conf.template" \
    "$nginx_config_path/conf/proxy.conf"
 
-useradd -G nginx -d /etc/nginx -m nginx
-
-# TODO: add group nginx, handle in a system agnostic method
+# TODO: better handling of already exising nginx user here
+groupadd nginx 2>/dev/null
+useradd -G nginx -M nginx 2>/dev/null
 
 for directory in "${config_directories[@]}" ; do
   chown -R nginx:nginx "$directory"
