@@ -16,35 +16,16 @@ if [[ -s "$extension_templates_path/nginx.conf.template" ]] ; then
 
   # nginx.conf.template => /etc/nginx.conf
   cp "$extension_templates_path/nginx.conf.template" \
-    "/etc/nginx/"
+    "/etc/nginx/nginx.conf"
 
-  # nginx_ctl.template => /etc/init.d/nginx
-  if [[ -d /etc/init.d ]] ; then
-
-    # Copy the NGINX control script to the init.d directory
-    cp "$extension_templates_path/nginx_ctl.template" \
-      "/etc/init.d/"
-
-    chmod +x /etc/init.d/nginx
-
-  elif [[ -d /etc/rc.d ]] ; then
-
-    # Copy the NGINX control script to the rc.d directory
-    cp "$extension_templates_path/nginx_ctl.template" \
-      "/etc/rc.d/"
-
-    chmod +x /etc/rc.d/nginx
-
-  else
-
-    printf "WARN: Did not find /etc/init.d nor /etc/rc.d to place the init script.\n"
-
-  fi
+  # nginx_ctl.template => ${init_scripts_path}/nginx
+  cp "${extension_templates_path}/nginx_ctl.template" \
+    "${init_scripts_path}/nginx"
 
   # ${template}.template => /etc/nginx/conf/${template}
   for template in proxy.conf mime.types ; do
     cp "$extension_templates_path/${template}.template" \
-      "/etc/nginx/conf/"
+      "/etc/nginx/conf/${template}"
   done
 
   exit $?
