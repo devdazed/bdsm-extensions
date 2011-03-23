@@ -41,10 +41,11 @@ if [[ -s "$extension_templates_path/nginx.conf.template" ]] ; then
 
   fi
 
-  # proxy.conf.template => /etc/nginx/conf/proxy.conf
-  cp "$extension_templates_path/proxy.conf.template" \
-    "/etc/nginx/conf/"
-
+  # ${template}.template => /etc/nginx/conf/${template}
+  for template in proxy.conf mime.types ; do
+    cp "$extension_templates_path/${template}.template" \
+      "/etc/nginx/conf/"
+  done
 
   exit $?
 
