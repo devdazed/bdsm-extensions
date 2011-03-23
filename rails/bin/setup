@@ -2,7 +2,7 @@
 
 [[ "$trace_flag" -eq 1 ]] && set -x
 
-. "$scripts_path/initialize"
+source "$scripts_path/initialize"
 
 while [ $# -gt 0 ] ; do
   token="$1" ; shift
@@ -22,7 +22,7 @@ RAILS_ENV="${RAILS_ENV:-$environment}"
 #
 # Sanity checks
 #
-if [[ "root" = $(whoami) ]] ; then
+if [[ $UID -eq 0 ]] ; then
   $scripts_path/log "error" "bdsm extension $extension must be run as the project user and NOT root."
   exit 1
 fi
@@ -129,7 +129,7 @@ if [[ -d "$shared_path/$project/" ]] && [[ -s "$shared_path/$project/.rvmrc" ]] 
   . "$shared_path/$project/.rvmrc"
 fi
 
-if [[ ! -z "$database" ]] && command -v gem > /dev/null; then
+if [[ -n "$database" ]] && command -v gem > /dev/null; then
   if [[ "postgresql" = "$database" ]] ; then
     gem install pg --no-rdoc --no-ri
     if [[ "$?" -ne 0 ]] ; then
