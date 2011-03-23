@@ -13,10 +13,13 @@ $(find * -type d -maxdepth 0)"
 
 }
 
+[[ -s /etc/bdsmrc ]] && source /etc/bdsmrc
+[[ -s "$HOME/.bdsmrc" ]] && source "${HOME}/.bdsmrc"
+
 if [[ $(id -u) -eq 0 ]] ; then
-  bdsm_path="/usr/local/bdsm"
+  true ${bdsm_path:="/usr/local/bdsm"}
 else
-  bdsm_path="$HOME/.bdsm"
+  true ${bdsm_path:="$HOME/.bdsm"}
 fi
 
 if [[ -z "$*" ]]; then
