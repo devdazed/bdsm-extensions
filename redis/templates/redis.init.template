@@ -15,13 +15,13 @@ initialize()
   true ${redis_port:="6379"}
   true ${redis_bin_path:="/usr/local/bin"}
   true ${redis_server_binary:="${redis_bin_path}/redis-server"}
-  true ${redis_pid_file:="/var/run/redis.pid"}
+  true ${redis_pid_file:="/var/run/redis/redis.pid"}
   true ${redis_config_file:="/etc/redis/redis.conf"}
 
-  if [[ -s "$pidfile" ]] ; then
-    pid=$(cat "$pidfile")
+  if [[ -s "$redis_pid_file" ]] ; then
+    pid=$(cat "$redis_pid_file")
   else
-    rm -f "$pidfile"
+    rm -f "$redis_pid_file"
   fi
 
   return 0
@@ -58,8 +58,8 @@ Description:
 
 redis_start()
 {
-  if [[ -s "$pidfile" ]] ; then
-    fail "$pidfile exists, redis-server is either already running or crashed.\n"
+  if [[ -s "$redis_pid_file" ]] ; then
+    fail "$redis_pid_file exists, redis-server is either already running or crashed.\n"
   else
     log "#starting Redis as $redis_user using $redis_config_file..."
 
@@ -74,7 +74,7 @@ redis_start()
 
 redis_stop()
 {
-  if [[ -s "$pidfile" ]] ; then
+  if [[ -s "$redis_pid_file" ]] ; then
     log "#stopping Redis as $redis_user using $redis_config_file..."
 
     "${redis_server_binary/%server/cli}" shutdown
@@ -83,18 +83,18 @@ redis_stop()
       echo "Waiting for the redis server to shutdown ..."
       sleep 1
     done
-    rm -f $pidfile
+    rm -f $redis_pid_file
     log "redis server stopped."
     sleep 1
   else
-    fail "$pidfile does not exist, Redis is not running"
+    fail "$redis_pid_file does not exist, Redis is not running"
   fi
 }
 
 redis_restart()
 {
   log "#restarting Redis server..."
-  if [[ -s "$pidfile" ]] ; then
+  if [[ -s "$redis_pid_file" ]] ; then
     redis_stop
   else
     log "Redis is not running, proceeding."
@@ -106,10 +106,10 @@ redis_restart()
 
 redis_info()
 {
-  if [[ -s "$pidfile" ]] ; then
+  if [[ -s "$redis_pid_file" ]] ; then
     "${redis_server_binary/%server/cli}" INFO
   else
-    fail "$pidfile does not exist, Redis is not running"
+    fail "$redis_pid_file does not exist, Redis is not running"
     exit 1
   fi
   return $?
