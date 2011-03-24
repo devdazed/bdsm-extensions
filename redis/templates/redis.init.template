@@ -1,0 +1,136 @@
+#!/usr/bin/env bash
+
+log()  { printf "$*\n" ; return $? ;  }
+fail() { log "ERROR: $*" ; exit 1 ; }
+
+initialize()
+{
+  if [[ $UID -eq 0 ]] ; then
+    [[ -s /etc/conf.d/redis ]] && source /etc/conf.d/redis
+  else
+    redis_user="$USER"
+  fi
+
+  true ${redis_user:="redis"}
+  true ${redis_port:="6379"}
+  true ${redis_bin_path:="/usr/local/bin"}
+  true ${redis_server_binary:="${redis_bin_path}/redis-server"}
+  true ${redis_pid_file:="/var/run/redis.pid"}
+  true ${redis_config_file:="/etc/redis/redis.conf"}
+
+  if [[ -s "$pidfile" ]] ; then
+    pid=$(cat "$pidfile")
+  else
+    rm -f "$pidfile"
+  fi
+
+  return 0
+}
+
+redis_help()
+{
+  printf "
+
+Usage:
+
+  $0 <options> <action>
+
+Options:
+
+  --conf  - Path to redis.conf file
+  --pid   - Path to redis pid file
+  --bin   - Path to redis-server binary
+  --user  - Username to invoke redis as
+  --trace - Use to debugging this control script
+
+Description:
+
+  start    - Start Redis
+  stop     - Stop Redis
+  restart  - Restart Redis
+  info     - Display Redis INFO output for the server
+  status   - Show if Redis is running and on what port if so.
+  help     - Display this usage information
+
+"
+  return 0
+}
+
+redis_start()
+{
+  if [[ -s "$pidfile" ]] ; then
+    fail "$pidfile exists, redis-server is either already running or crashed.\n"
+  else
+    log "#starting Redis as $redis_user using $redis_config..."
+
+    if [[ "$redis_user" != "$USER" ]] ; then
+      su "$redis_user" -c "\"$redis_server_binary\" \"$redis_config\""
+    else
+      "$redis_server_binary" "$redis_config"
+    fi
+  fi
+  return $?
+}
+
+redis_stop()
+{
+  if [[ -s "$pidfile" ]] ; then
+    log "#stopping Redis as $redis_user using $redis_config..."
+
+    "${redis_server_binary/%server/cli}" shutdown
+
+    while [[ -x /proc/${pid} ]] ; do
+      echo "Waiting for the redis server to shutdown ..."
+      sleep 1
+    done
+    rm -f $pidfile
+    log "redis server stopped."
+    sleep 1
+  else
+    fail "$pidfile does not exist, Redis is not running"
+  fi
+}
+
+redis_restart()
+{
+  log "#restarting Redis server..."
+  if [[ -s "$pidfile" ]] ; then
+    redis_stop
+  else
+    log "Redis is not running, proceeding."
+  fi
+  redis_start
+
+  return $?
+}
+
+redis_info()
+{
+  if [[ -s "$pidfile" ]] ; then
+    "${redis_server_binary/%server/cli}" INFO
+  else
+    fail "$pidfile does not exist, Redis is not running"
+    exit 1
+  fi
+  return $?
+}
+
+initialize
+
+while [[ $# -gt 0 ]] ; do
+  token="$1" ; shift
+  case "$token" in
+    --trace) set -o xtrace ;;
+    --conf)  redis_config_file="$1" ; shift ;;
+    --pid)   redis_pid_file="$1"    ; shift ;;
+    --bin)   redis_bin_path="$1"    ; shift ;;
+    start)   redis_start                    ;;
+    stop)    redis_stop                     ;;
+    restart) redis_restart                  ;;
+    info)    redis_info                     ;;
+    help)    redis_help                     ;;
+    *)       redis_help            ; exit 1 ;;
+  esac
+done
+
+exit $?

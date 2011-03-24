@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+
+set -o errtrace
+export PS4='+[${BASH_SOURCE}] : ${LINENO} : ${FUNCNAME[0]:+${FUNCNAME[0]}() $ }'
+
+log()  { printf "$*\n" ; return $? ;  }
+fail() { log "ERROR: $*" ; exit 1 ; }
+
+if [[ ${debug_flag:-0} -eq 1 ]] ; then
+  set -o verbose
+fi
+
+if [[ ${trace_flag:-0} -eq 1 ]] ; then
+  set -o xtrace
+fi
+
+files=( "/etc/.bdsmrc" "$HOME/.bdsmrc" )
+for file in "${files[@]}" ; do
+  [[ -s "$file" ]] && source "$file"
+done
+
+export PATH="/sbin:/usr/sbin:/usr/local/sbin:/opt/sbin:/opt/local:sbin:$PATH"
+
+if [[ $UID -eq 0 ]] ; then
+  if [[ -d /etc/init.d ]] ; then
+    init_scripts_path=/etc/init.d
+  elif [[ -d /etc/rc.d ]] ; then
+    init_scripts_path=/etc/rc.d
+  else
+    printf "ERROR: Unknown init scripts directory (neither /etc/init.d nor /etc/rc.d were found).\n"
+    exit 1
+  fi
+else
+  true ${init_scripts_path:="$HOME/bin"}
+fi
+
+package="redis"
+true ${version:="1.2.2"}
+true ${archive_format:="tar.gz"}
+package_file="${package}-${version}.${archive_format}"
+true ${redis_url:="http://redis.googlecode.com/files/${package_file}"}
+result=0
+
+if [[ $UID -eq 0 ]] ; then
+  prefix="${prefix:-/usr/local}"
+  directories=(/etc/redis /var/log/redis /var/run/redis /data/redis)
+  user="redis"
+else
+  prefix="${prefix:-$HOME}"
+  redis_install_path="$prefix"
+  directories=("$HOME/.redis/log" "$HOME/.redis/data" "$HOME/.redis/pids")
+  user="$USER"
+fi
+true ${src_path:="$prefix/src"}
+
+# Redis Configuration.
+true ${redis_package_path="${src_path}/${package}-${version}"}
+true ${redis_src_path="${redis_package_path}/src"}
+true ${redis_install_path:="$prefix"}
+true ${redis_bin_path:="${redis_install_path}/bin"}
+true ${redis_config_path:="/etc/redis"}
+true ${redis_config_file:="${redis_config_file:-"${redis_config_path}/redis.conf"}"}
+true ${redis_servers_path:="$redis_etc_path/servers"}
+true ${redis_server_binary:="${redis_bin_path}/redis-server"}
+true ${redis_cli_binary:="${redis_bin_path}/redis-cli"}
+true ${redis_pid_file:="/var/run/redis.pid"}
+true ${redis_lock_file:="/var/lock/redis.lock"}
+true ${redis_spool_path:="/var/spool/redis"}
+true ${redis_log_path:="/var/log/redis"}
+
+timestamp=$(date +%m.%d.%YT%H:%M:%S)
+redis_master_pid="$(ps auxww |  awk "/[r]edis-server $redis_config_file/{print \$2}" | head -1)"
