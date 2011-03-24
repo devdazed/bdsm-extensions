@@ -82,6 +82,7 @@ install_init_script()
 
   [[ -s "${init_scripts_path}/redis" && ! -x "${init_scripts_path}/redis" ]] &&
     chmod +x "${init_scripts_path}/redis"
+
   return 0
 }
 
@@ -99,6 +100,8 @@ install_redis_conf()
         -e "s#port .*\$#port ${redis_port}#" \
         -e "s#bind .*\$#bind ${redis_bind_interface}#" >
       "${redis_config_file}"
+
+    chown -R root:$user "${redis_config_file}"
   fi
   return 0
 }
