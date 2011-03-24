@@ -72,7 +72,6 @@ redis_paths=(
   "${redis_install_path}"
   "${redis_bin_path}"
   "${redis_config_path}"
-  "${redis_config_file}"
   "${redis_servers_path}"
   "${redis_spool_path}"
   "${redis_log_path}"
