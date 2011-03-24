@@ -68,7 +68,9 @@ create_redis_directories()
 
   for redis_path in "${redis_paths[@]}" ; do
     [[ ! -d "$redis_path" ]] && mkdir -p "$redis_path"
+    chown -R $user "$redis_path"
   done
+  [[ ! -d "${redis_install_path}" ]] && mkdir -p "${redis_install_path}"
   return 0
 }
 
@@ -89,7 +91,14 @@ install_redis_conf()
     log "${redis_config_file} already exists, not overwriting."
   else
     log "#installing redis.conf file to ${redis_config_file}"
-    cp -f "$redis_src_path/redis.conf" "${redis_config_file}"
+
+    sed -e "s#pidfile .*\$#pidfile ${redis_pid_file}#" \
+        -e "s#logfile .*\$#logfile ${redis_log_file}#" \
+        -e "s#dir .*\$#dir ${redis_db_path}#" \
+        -e "s#dbfilename .*\$#dbfilename ${redis_db_file}#" \
+        -e "s#port .*\$#port ${redis_port}#" \
+        -e "s#bind .*\$#bind ${redis_bind_interface}#" >
+      "${redis_config_file}"
   fi
   return 0
 }

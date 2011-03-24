@@ -54,26 +54,32 @@ fi
 true ${src_path:="$prefix/src"}
 
 # Redis Configuration.
+true ${redis_port:=6379}
+true ${redis_bind_interface:="127.0.0.1"}
 true ${redis_src_path:="${src_path}/${package}-${version}"}
 true ${redis_install_path:="$prefix"}
 true ${redis_bin_path:="${redis_install_path}/bin"}
 true ${redis_config_path:="/etc/redis"}
 true ${redis_config_file:="${redis_config_path}/redis.conf"}
 true ${redis_servers_path:="$redis_etc_path/servers"}
-true ${redis_spool_path:="/var/spool/redis"}
 true ${redis_log_path:="/var/log/redis"}
+true ${redis_log_file:="/var/log/redis/redis.log"}
 true ${redis_server_binary:="${redis_bin_path}/redis-server"}
 true ${redis_cli_binary:="${redis_bin_path}/redis-cli"}
-true ${redis_pid_file:="/var/run/redis.pid"}
-true ${redis_lock_file:="/var/lock/redis.lock"}
+true ${redis_pid_path:="/var/run/redis"}
+true ${redis_pid_file:="${redis_pid_path}/redis.pid"}
+true ${redis_db_path:="/var/lib/redis"}
+true ${redis_db_file:="${redis_db_path}/dump.rdb"}
+true ${redis_lock_path:="/var/lock/redis"}
+true ${redis_lock_file:="${redis_lock_path}/redis.lock"}
 
 redis_paths=(
-  "${redis_src_path}"
-  "${redis_install_path}"
   "${redis_bin_path}"
   "${redis_config_path}"
+  "${redis_pid_path}"
+  "${redis_db_path}"
+  "${redis_lock_path}"
   "${redis_servers_path}"
-  "${redis_spool_path}"
   "${redis_log_path}"
 )
 
