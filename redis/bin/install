@@ -6,9 +6,8 @@ fail() { log "ERROR: $*" ; exit 1 ; }
 setup_redis_user()
 {
   if [[ $UID -eq 0 ]] ; then
-
     (
-    case "$os_type" in
+    case "$(uname)" in
       "OpenBSD")
         groupadd "$redis_user"
         useradd -g "$redis_user" "redis_user" -s /bin/bash
@@ -22,7 +21,7 @@ setup_redis_user()
         else
           groupadd -f "$redis_user"
         fi
-        useradd -g "$redis_user" -s /bin/bash "redis_user"
+        useradd -g "$redis_user" -s /sbin/nologin -d /var/lib/redis "redis_user"
       ;;
 
       "Darwin")
@@ -42,11 +41,11 @@ setup_redis_user()
         dscl . -create "/Groups/$redis_user" gid "$gid"
 
         # ????
-        # useradd -g "$redis_user" -s /bin/bash "redis_user"
+        # useradd -g "$redis_user" -s /sbin/nologin -d /var/lib/redis "redis_user"
       ;;
       "SunOS")
         groupadd "$redis_user"
-        useradd -g "$redis_user" -s /bin/bash "redis_user"
+        useradd -g "$redis_user" -s /sbin/nologin -d /var/lib/redis "redis_user"
         ;;
     esac
     ) || true # Ignore failures with this for now...
@@ -80,6 +79,17 @@ install_init_script()
 
   [[ -s "${init_scripts_path}/redis" && ! -x "${init_scripts_path}/redis" ]] &&
     chmod +x "${init_scripts_path}/redis"
+  return 0
+}
+
+install_redis_conf()
+{
+  if [[ -s "${redis_config_file}" ]] ; then
+    log "${reids_config_file} already exists, not overwriting."
+  else
+    log "#installing redis.conf file to ${redis_config_file}"
+    cp -f "$redis_src_path/redis.conf" "${redis_config_file}"
+  fi
   return 0
 }
 
@@ -178,5 +188,9 @@ setup_redis_user
 create_redis_directories
 
 install_init_script
+
+install_redis_conf
+
+log "Installation Complete."
 
 exit 0
