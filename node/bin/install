@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+#installs the latest version of nvm, node.js and npm
+if [[ "root" = "$(whoami)" ]] ; then
+  source_path="/usr/local/src"
+else
+  source_path="$HOME/.nvm"
+fi
+
+mkdir -p $source_path
+curl -Ls https://github.com/creationix/nvm/raw/master/nvm.sh > $source_path/nvm.sh
+chmod +x $source_path/nvm.sh
+
+. $source_path/nvm.sh
+
+echo ". $source_path/nvm.sh" > ~/.bashrc
+
+nvm install latest
+nvm alias default latest
