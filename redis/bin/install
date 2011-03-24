@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-log()  { printf "$*\n" ; return $? ;  }
-fail() { log "ERROR: $*" ; exit 1 ; }
-
 setup_redis_user()
 {
   if [[ $UID -eq 0 ]] ; then
@@ -10,7 +7,7 @@ setup_redis_user()
     case "$(uname)" in
       "OpenBSD")
         groupadd "$redis_user"
-        useradd -g "$redis_user" "redis_user" -s /bin/bash
+        useradd -g "$redis_user" "$redis_user" -s /bin/bash
         ;;
       "FreeBSD")
         pw groupadd -q "$redis_user"
@@ -21,7 +18,7 @@ setup_redis_user()
         else
           groupadd -f "$redis_user"
         fi
-        useradd -g "$redis_user" -s /sbin/nologin -d /var/lib/redis "redis_user"
+        useradd -g "$redis_user" -s /sbin/nologin -d /var/lib/redis "$redis_user"
       ;;
 
       "Darwin")
@@ -41,11 +38,11 @@ setup_redis_user()
         dscl . -create "/Groups/$redis_user" gid "$gid"
 
         # ????
-        # useradd -g "$redis_user" -s /sbin/nologin -d /var/lib/redis "redis_user"
+        # useradd -g "$redis_user" -s /sbin/nologin -d /var/lib/redis "$redis_user"
       ;;
       "SunOS")
         groupadd "$redis_user"
-        useradd -g "$redis_user" -s /sbin/nologin -d /var/lib/redis "redis_user"
+        useradd -g "$redis_user" -s /sbin/nologin -d /var/lib/redis "$redis_user"
         ;;
     esac
     ) || true # Ignore failures with this for now...
@@ -170,8 +167,10 @@ source "${extension_scripts_path}/initialize"
 while [[ $# -gt 0 ]] ; do
   token="$1" ; shift
   case "$token" in
-    --trace) set -o xtrace ;;
-    *)       fail "Unknown command line argument '$token' " ;;
+    --trace)   set -o xtrace          ;;
+    --version) version="$1"   ; shift ;;
+    --url)     redis_url="$1" ; shift ;;
+    *)         fail "Unknown command line argument for bdsm redis: '$token'" ;;
   esac
 done
 
