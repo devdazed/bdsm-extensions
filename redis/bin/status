@@ -2,11 +2,19 @@
 
 source "${extension_scripts_path}/initialize"
 
+log "redis-server:"
+
 if [[ -s "${redis_pid_file}" ]] ; then
-  server_version=$("${init_scripts_path}/redis" info | awk -F: '/redis_version/{print $2}')
-  port=$(awk '/^port/{print $2}' /etc/redis/redis.conf)
-  log "Redis server version ${server_version} is running on port ${port:-6379}"
+  log "  status: running"
+  log "  pid: $(cat ${redis_pid_file})"
 else
-  log "Redis server is not running on port ${port:-6379}"
+  log "  status: not running"
 fi
 
+log "  version: $("${init_scripts_path}/redis" info | head -1 | awk -F: '/redis_version/{print $2}')"
+log "  port: $(awk '/^port/{print $2}' ${redis_config_file} || printf "6379")"
+log "  pidfile: $(awk '/^pidfile/{print $2}' ${redis_config_file})"
+log "  logfile: $(awk '/^logfile/{print $2}' ${redis_config_file})"
+log "  dbfile: $(awk '/^dbfilename/{print $2}' ${redis_config_file})"
+
+exit 0
