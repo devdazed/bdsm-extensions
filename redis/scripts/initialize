@@ -44,12 +44,12 @@ result=0
 if [[ $UID -eq 0 ]] ; then
   prefix="${prefix:-/usr/local}"
   directories=(/etc/redis /var/log/redis /var/run/redis /data/redis)
-  user="redis"
+  redis_user="redis"
 else
   prefix="${prefix:-$HOME}"
   redis_install_path="$prefix"
   directories=("$HOME/.redis/log" "$HOME/.redis/data" "$HOME/.redis/pids")
-  user="$USER"
+  redis_user="$USER"
 fi
 true ${src_path:="$prefix/src"}
 

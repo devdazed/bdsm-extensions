@@ -6,7 +6,51 @@ fail() { log "ERROR: $*" ; exit 1 ; }
 setup_redis_user()
 {
   if [[ $UID -eq 0 ]] ; then
-    useradd -r redis # TODO: Make this more robust...
+
+    (
+    case "$os_type" in
+      "OpenBSD")
+        groupadd "$redis_user"
+        useradd -g "$redis_user" "redis_user" -s /bin/bash
+        ;;
+      "FreeBSD")
+        pw groupadd -q "$redis_user"
+        ;;
+      "Linux")
+        if [[ -f "/etc/SuSE-release" ]] ; then
+          groupadd "$redis_user"
+        else
+          groupadd -f "$redis_user"
+        fi
+        useradd -g "$redis_user" -s /bin/bash "redis_user"
+      ;;
+
+      "Darwin")
+        gid="501" #only gids > 500 show up in user preferences
+
+        #Find an open gid
+        while true; do
+          name=$(dscl . search /groups PrimaryGroupID $gid | cut -f1 -s)
+          if [ -z "$name" ] ; then
+            break
+          fi
+          gid=$[$gid +1]
+        done
+
+        #Create the group
+        dscl . -create "/Groups/$redis_user"
+        dscl . -create "/Groups/$redis_user" gid "$gid"
+
+        # ????
+        # useradd -g "$redis_user" -s /bin/bash "redis_user"
+      ;;
+      "SunOS")
+        groupadd "$redis_user"
+        useradd -g "$redis_user" -s /bin/bash "redis_user"
+        ;;
+    esac
+    ) || true # Ignore failures with this for now...
+
   fi
   return 0
 }
