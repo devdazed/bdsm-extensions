@@ -99,7 +99,7 @@ install_redis_conf()
         -e "s#dbfilename .*\$#dbfilename ${redis_db_file}#" \
         -e "s#port .*\$#port ${redis_port}#" \
         -e "s#bind .*\$#bind ${redis_bind_interface}#" \
-      > "${redis_config_file}"
+      "${redis_src_path}/redis.conf" > "${redis_config_file}"
 
     chown -R $redis_user "${redis_config_file}"
   fi
