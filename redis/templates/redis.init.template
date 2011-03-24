@@ -61,12 +61,12 @@ redis_start()
   if [[ -s "$pidfile" ]] ; then
     fail "$pidfile exists, redis-server is either already running or crashed.\n"
   else
-    log "#starting Redis as $redis_user using $redis_config..."
+    log "#starting Redis as $redis_user using $redis_config_file..."
 
     if [[ "$redis_user" != "$USER" ]] ; then
-      su "$redis_user" -c "\"$redis_server_binary\" \"$redis_config\""
+      su "$redis_user" -c "\"$redis_server_binary\" \"$redis_config_file\""
     else
-      "$redis_server_binary" "$redis_config"
+      "$redis_server_binary" "$redis_config_file"
     fi
   fi
   return $?
@@ -75,7 +75,7 @@ redis_start()
 redis_stop()
 {
   if [[ -s "$pidfile" ]] ; then
-    log "#stopping Redis as $redis_user using $redis_config..."
+    log "#stopping Redis as $redis_user using $redis_config_file..."
 
     "${redis_server_binary/%server/cli}" shutdown
 

@@ -8,6 +8,7 @@ setup_redis_user()
       "OpenBSD")
         groupadd "$redis_user"
         useradd -g "$redis_user" "$redis_user" -s /bin/bash
+        usermod -s /bin/bash "$redis_user"
         ;;
       "FreeBSD")
         pw groupadd -q "$redis_user"
@@ -18,7 +19,8 @@ setup_redis_user()
         else
           groupadd -f "$redis_user"
         fi
-        useradd -g "$redis_user" -s /sbin/nologin -d /var/lib/redis "$redis_user"
+        useradd -g "$redis_user" -s /bin/bash -d /var/lib/redis "$redis_user"
+        usermod -s /bin/bash "$redis_user"
       ;;
 
       "Darwin")
@@ -38,11 +40,13 @@ setup_redis_user()
         dscl . -create "/Groups/$redis_user" gid "$gid"
 
         # ????
-        # useradd -g "$redis_user" -s /sbin/nologin -d /var/lib/redis "$redis_user"
+        # useradd -g "$redis_user" -s /bin/bash -d /var/lib/redis "$redis_user"
+        # usermod -s /bin/bash
       ;;
       "SunOS")
         groupadd "$redis_user"
-        useradd -g "$redis_user" -s /sbin/nologin -d /var/lib/redis "$redis_user"
+        useradd -g "$redis_user" -s /bin/bash -d /var/lib/redis "$redis_user"
+        usermod -s /bin/bash "$redis_user"
         ;;
     esac
     ) || true # Ignore failures with this for now...
