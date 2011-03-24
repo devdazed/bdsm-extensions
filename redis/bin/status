@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+source "${extension_scripts_path}/initialize"
+
+if [[ -s "${redis_pid_file}" ]] ; then
+  server_version=$("${init_scripts_path}/redis" info | awk -F: '/redis_version/{print $2}')
+  port=$(awk '/^port/{print $2}' /etc/redis/redis.conf)
+  log "Redis server version ${server_version} is running on port ${port:-6379}"
+else
+  log "Redis server is not running on port ${port:-6379}"
+fi
+
