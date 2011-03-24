@@ -35,7 +35,7 @@ else
 fi
 
 package="redis"
-true ${version:="1.2.2"}
+true ${version:="2.2.2"}
 true ${archive_format:="tar.gz"}
 package_file="${package}-${version}.${archive_format}"
 true ${redis_url:="http://redis.googlecode.com/files/${package_file}"}
