@@ -56,10 +56,11 @@ download_redis()
   [[ ! -d "$src_path" ]] && mkdir -p $src_path
 
   if ! cd $src_path ; then
-    fail " Failed to create and cd to $src_path"
+    fail " Failed changing to $src_path"
   fi
 
   log "Downloading  ${package_file}...\n"
+
   if ! curl -O -L "${redis_url}" ; then
     fail "${package_file} failed to download from '${redis_url}'."
   fi
@@ -68,8 +69,13 @@ download_redis()
 
 extract_redis()
 {
+  if ! cd "$src_path" ; then
+    fail "Failed changeing to $src_path"
+  fi
+
   log "Extracting ${package} ${version}...\n"
-  if ! tar zxf ${package_file} ; then
+
+  if ! tar zxf "${package_file}" ; then
     fail "${package_file} failed to extract."
   fi
 
@@ -78,13 +84,14 @@ extract_redis()
 
 build_redis()
 {
-  if ! cd ${package}-${version} ; then
-    fail "Could not enter extracted ${package}-${version} source directory."
+  if ! cd "${redis_src_path}" ; then
+    fail "Failed changing to ${redis_src_path} directory."
   fi
 
   # Nothing to configure, proceeding straight to make.
 
   log "#compiling ${package} ${version}...\n"
+
   if ! make 2>&1 > "${redis_src_path}/make.log" ; then
     fail "Compiling ${package}-${version} failed, see ${redis_src_path}/make.log"
   fi
