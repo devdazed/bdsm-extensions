@@ -158,7 +158,7 @@ install_redis()
   log "#installing ${package} ${version}...\n"
 
   for file in redis-server redis-cli ; do
-    if ! install -b -S "${redis_src_path}/src/${file}" "${redis_bin_path}/${file}" ; then
+    if ! install -b "${redis_src_path}/src/${file}" "${redis_bin_path}/${file}" ; then
       fail "${package} ${version} failed to install (specifically ${file}).\n"
     fi
   done
