@@ -85,7 +85,7 @@ install_init_script()
 install_redis_conf()
 {
   if [[ -s "${redis_config_file}" ]] ; then
-    log "${reids_config_file} already exists, not overwriting."
+    log "${redis_config_file} already exists, not overwriting."
   else
     log "#installing redis.conf file to ${redis_config_file}"
     cp -f "$redis_src_path/redis.conf" "${redis_config_file}"
