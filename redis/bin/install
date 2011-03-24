@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-if echo "$*" awk '/--trace/' ; then set -x ; fi
-
 log()  { printf "$*\n" ; return $? ;  }
 fail() { log "ERROR: $*" ; exit 1 ; }
 
@@ -15,10 +13,17 @@ setup_redis_user()
 
 create_redis_directories()
 {
-  log "Creating directories ${package} ${version}...\n"
+  local directory redis_path
+
+  log "Creating paths for ${package} ${version}...\n"
+  # TODO: can likely merge directory creation into path creation.
   for directory in "${directories[@]}" ; do
     [[ ! -d "$directory" ]] && mkdir -p "$directory"
     chown -R $user "$directory"
+  done
+
+  for redis_path in "${redis_paths[@]}" ; do
+    [[ ! -d "$redis_path" ]] && mkdir -p "$redis_path"
   done
   return 0
 }

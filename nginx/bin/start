@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+
 source "$extension_scripts_path/initialize"
 
 if [[ ${master_pid:-0} -gt 0 ]] ; then
