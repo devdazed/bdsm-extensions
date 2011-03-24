@@ -96,6 +96,7 @@ install_redis_conf()
     sed -e "s#pidfile .*\$#pidfile ${redis_pid_file}#" \
         -e "s#logfile .*\$#logfile ${redis_log_file}#" \
         -e "s#dir .*\$#dir ${redis_db_path}#" \
+        -e "s#^.*daemonize .*\$#daemonize yes#" \
         -e "s#dbfilename .*\$#dbfilename ${redis_db_file}#" \
         -e "s#port .*\$#port ${redis_port}#" \
         -e "s#bind .*\$#bind ${redis_bind_interface}#" \

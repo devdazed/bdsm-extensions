@@ -64,9 +64,9 @@ redis_start()
     log "#starting Redis as $redis_user using $redis_config_file..."
 
     if [[ "$redis_user" != "$USER" ]] ; then
-      (su "$redis_user" -c "exec \"$redis_server_binary\" \"$redis_config_file\"")&
+      su "$redis_user" -c "\"$redis_server_binary\" \"$redis_config_file\""
     else
-      (exec "$redis_server_binary" "$redis_config_file" )&
+      "$redis_server_binary" "$redis_config_file"
     fi
   fi
   return $?
