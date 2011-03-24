@@ -63,12 +63,12 @@ create_redis_directories()
   # TODO: can likely merge directory creation into path creation.
   for directory in "${directories[@]}" ; do
     [[ ! -d "$directory" ]] && mkdir -p "$directory"
-    chown -R $user "$directory"
+    chown -R $redis_user "$directory"
   done
 
   for redis_path in "${redis_paths[@]}" ; do
     [[ ! -d "$redis_path" ]] && mkdir -p "$redis_path"
-    chown -R $user "$redis_path"
+    chown -R $redis_user "$redis_path"
   done
   [[ ! -d "${redis_install_path}" ]] && mkdir -p "${redis_install_path}"
   return 0
@@ -101,7 +101,7 @@ install_redis_conf()
         -e "s#bind .*\$#bind ${redis_bind_interface}#" >
       "${redis_config_file}"
 
-    chown -R root:$user "${redis_config_file}"
+    chown -R $redis_user "${redis_config_file}"
   fi
   return 0
 }
