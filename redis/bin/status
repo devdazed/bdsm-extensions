@@ -6,12 +6,12 @@ log "redis-server:"
 
 if [[ -s "${redis_pid_file}" ]] ; then
   log "  status: running"
+  log "  version: $("${init_scripts_path}/redis" info | head -1 | awk -F: '/redis_version/{print $2}')"
   log "  pid: $(cat ${redis_pid_file})"
 else
   log "  status: not running"
 fi
 
-log "  version: $("${init_scripts_path}/redis" info | head -1 | awk -F: '/redis_version/{print $2}')"
 log "  port: $(awk '/^port/{print $2}' ${redis_config_file} || printf "6379")"
 log "  pidfile: $(awk '/^pidfile/{print $2}' ${redis_config_file})"
 log "  logfile: $(awk '/^logfile/{print $2}' ${redis_config_file})"
