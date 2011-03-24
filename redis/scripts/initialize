@@ -54,8 +54,7 @@ fi
 true ${src_path:="$prefix/src"}
 
 # Redis Configuration.
-true ${redis_package_path:="${src_path}/${package}-${version}"}
-true ${redis_src_path:="${redis_package_path}/src"}
+true ${redis_src_path:="${src_path}/${package}-${version}"}
 true ${redis_install_path:="$prefix"}
 true ${redis_bin_path:="${redis_install_path}/bin"}
 true ${redis_config_path:="/etc/redis"}
@@ -69,7 +68,6 @@ true ${redis_pid_file:="/var/run/redis.pid"}
 true ${redis_lock_file:="/var/lock/redis.lock"}
 
 redis_paths=(
-  "${redis_package_path}"
   "${redis_src_path}"
   "${redis_install_path}"
   "${redis_bin_path}"
