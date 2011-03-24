@@ -13,9 +13,7 @@ actions()
   start    - Startup redis.
   stop     - Stop redis.
   restart  - Restart redis.
-  server  <project_name>  - Add and enable a new server(s)
-  enable  <project_name>  - Enable project server config.
-  disable <project_name>  - Disable project server config.
+  info     - Display redis server INFO
   help     - Display this help text.
   "
 }

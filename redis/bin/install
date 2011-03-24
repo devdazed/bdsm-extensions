@@ -73,8 +73,7 @@ extract_redis()
 
 build_redis()
 {
-  cd ${package}-${version}
-  if [[ $? -gt 0]] ; then
+  if ! cd ${package}-${version} ; then
     fail "Could not enter extracted ${package}-${version} source directory."
   fi
 
@@ -121,4 +120,4 @@ create_redis_directories
 
 install_init_script
 
-exit $result
+exit 0
