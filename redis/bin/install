@@ -122,6 +122,8 @@ done
 
 download_redis
 
+extract_redis
+
 build_redis
 
 install_redis
